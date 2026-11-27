@@ -76,7 +76,7 @@ The Q-SNASB flight stack and the live Q-MCT v4.2 web application operate across 
 ---
 
 ## Repository Structure
-
+```text
 q-snasb-flight-system/
 ├── index.html                         # Single-File Live Web App (Q-MCT v4.2, 60 FPS Sim, PQC-QRL Lab & .ZIP Generator)
 ├── CMakeLists.txt                     # C++20 Build Configuration for Layer 1 & Layer 2 Flight Binaries
@@ -90,7 +90,7 @@ q-snasb-flight-system/
 │   └── q_navigation_engine.py         # Layer 3 (Python 3): QUAV-QAOA, DARBO, Mean-Field AOA, PQC-QRL & QFIM Engine
 └── cad_cae/
 └── spacecraft_bus_parametric.scad # Parametric CAD Geometry (210 kg Hexagonal Mother Bus & 6x 5 kg 6U Bots)
-
+```
 ---
 
 ## Quick Start & Installation
