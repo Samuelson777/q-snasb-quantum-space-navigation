@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Q-MCT v4.2 Interactive Flight Deck: Quantum Space Navigation and Adaptive Bot Swarm Simulator</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      @font-face {
+          font-family: "Google Sans";
+          src: url("https://fonts.gstatic.com/s/googlesans/v58/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2") format("woff2");
+          font-weight: 400; font-style: normal; font-display: swap;
+      }
+
+      :root, html[data-theme="light"] {
+          --surface-color: #FFFFFF;
+          --surface-card: #F8FAFC;
+          --surface-canvas: #0A0F1D;
+          --on-surface: #1B1C1D;
+          --on-surface-variant: #575B5F;
+          --on-surface-low: #727676;
+
+          --outline: #747775;
+          --outline-variant: #E2E8F0;
+
+          --google-blue: #1A73E8;
+          --cyan: #12B5CB;
+          --magenta: #F538A0;
+          --tangerine: #FA903E;
+          --mint-green: #81C995;
+          --red: #D93025;
+          --yellow: #FCC934;
+      }
+      html[data-theme="dark"] {
+          --surface-color: #141414;
+          --surface-card: #1E222B;
+          --surface-canvas: #060913;
+          --on-surface: #FFFFFF;
+          --on-surface-variant: #A2A9B0;
+          --on-surface-low: #9A9B9C;
+
+          --outline: #9A9B9C;
+          --outline-variant: #333942;
+
+          --google-blue: #1A73E8;
+          --cyan: #12B5CB;
+          --magenta: #F538A0;
+          --tangerine: #FA903E;
+          --mint-green: #81C995;
+          --red: #D93025;
+          --yellow: #FCC934;
+      }
+
+      .font-mono-code {
+          font-family: 'JetBrains Mono', monospace;
+          font-variant-numeric: tabular-nums;
+      }
+
+      input[type=range] {
+          -webkit-appearance: none;
+          background: var(--outline-variant);
+          height: 4px;
+          border-radius: 2px;
+      }
+      input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          height: 14px;
+          width: 14px;
+          border-radius: 50%;
+          background: var(--google-blue);
+          cursor: pointer;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: ['class', '[data-theme="dark"]'],
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Google Sans"', '"Open Sans"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace']
+            },
+            colors: {
+              surface: 'var(--surface-color)',
+              'surface-card': 'var(--surface-card)',
+              'surface-canvas': 'var(--surface-canvas)',
+              'on-surface': 'var(--on-surface)',
+              'on-surface-variant': 'var(--on-surface-variant)',
+              outline: 'var(--outline)',
+              'outline-variant': 'var(--outline-variant)',
+              'g-blue': 'var(--google-blue)',
+              'g-cyan': 'var(--cyan)',
+              'g-magenta': 'var(--magenta)',
+              'g-tangerine': 'var(--tangerine)',
+              'g-mint': 'var(--mint-green)',
+              'g-red': 'var(--red)',
+              'g-yellow': 'var(--yellow)'
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="font-sans bg-surface text-on-surface m-0 p-3 sm:p-5 flex justify-center w-full min-h-screen">
+    <figure class="w-full max-w-[800px] flex flex-col gap-5">
+      <div class="mb-0">
+        <h3 class="text-2xl sm:text-3xl font-normal text-on-surface leading-tight tracking-tight">
+          <b>Q-MCT v4.2 Interactive Flight Deck</b>: Quantum Space Navigation and Adaptive Bot Swarm Simulator
+        </h3>
+      </div>
+
+      <div id="viz-container" class="relative w-full flex flex-col gap-3.5 box-border">
+        <!-- ROW 1: Persistent Mission Objective Header Banner -->
+        <div class="w-full bg-slate-900 text-white rounded-lg p-3 shadow-sm border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div class="flex items-start gap-2.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 mt-1 animate-ping"></div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono font-bold tracking-wider text-cyan-300">CORE OBJECTIVE</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-700 font-mono">AUTONOMOUS ZERO-DRIFT</span>
+              </div>
+              <p class="text-xs text-slate-200 mt-0.5 leading-snug">
+                Deep space navigation via Cold-Atom Interferometry (CAI) &amp; Gravity Gradient Tensors (GGT), integrated with an adaptive 6-bot surveillance swarm executing real-time Weighted Covariance Intersection (WCI) and QAOA path optimization.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 self-end sm:self-auto shrink-0 font-mono text-[11px]">
+            <span class="px-2 py-1 rounded bg-slate-800 border border-slate-600 text-emerald-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 6/6 BOTS ONLINE
+            </span>
+            <span class="px-2 py-1 rounded bg-slate-800 border border-slate-600 text-cyan-300">
+              MOTHER: 210 kg
+            </span>
+          </div>
+        </div>
+
+        <!-- ROW 2: 6 Quantum Mode Selector Bar -->
+        <div class="w-full">
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="mode-tabs">
+            <button data-mode="1" class="mode-tab-btn py-2 px-1 text-center rounded border transition text-xs font-semibold flex flex-col items-center justify-center gap-0.5 bg-blue-600 text-white border-blue-600 shadow-sm">
+              <span class="text-[10px] tracking-wider opacity-90">MODE 1</span>
+              <span>Q-INS / GGT</span>
+            </button>
+            <button data-mode="2" class="mode-tab-btn py-2 px-1 text-center rounded border transition text-xs font-semibold flex flex-col items-center justify-center gap-0.5 bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue">
+              <span class="text-[10px] tracking-wider opacity-70">MODE 2</span>
+              <span>Q-PNT / QFI</span>
+            </button>
+            <button data-mode="3" class="mode-tab-btn py-2 px-1 text-center rounded border transition text-xs font-semibold flex flex-col items-center justify-center gap-0.5 bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue">
+              <span class="text-[10px] tracking-wider opacity-70">MODE 3</span>
+              <span>Q-SWARM</span>
+            </button>
+            <button data-mode="4" class="mode-tab-btn py-2 px-1 text-center rounded border transition text-xs font-semibold flex flex-col items-center justify-center gap-0.5 bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue">
+              <span class="text-[10px] tracking-wider opacity-70">MODE 4</span>
+              <span>Q-PATH</span>
+            </button>
+            <button data-mode="5" class="mode-tab-btn py-2 px-1 text-center rounded border transition text-xs font-semibold flex flex-col items-center justify-center gap-0.5 bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue">
+              <span class="text-[10px] tracking-wider opacity-70">MODE 5</span>
+              <span>Q-CTRL</span>
+            </button>
+            <button data-mode="6" class="mode-tab-btn py-2 px-1 text-center rounded border transition text-xs font-semibold flex flex-col items-center justify-center gap-0.5 bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue">
+              <span class="text-[10px] tracking-wider opacity-70">MODE 6</span>
+              <span>Q-COMM</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ROW 3: Two-Column Interactive Simulation & Telemetry Deck -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 w-full">
+          <!-- Column A: Canvas Viewport -->
+          <div class="md:col-span-7 flex flex-col rounded-lg border border-outline-variant overflow-hidden bg-slate-950 relative shadow-inner">
+            <div class="absolute top-2 left-2.5 right-2.5 z-10 flex items-center justify-between pointer-events-none">
+              <div class="flex items-center gap-1.5 bg-slate-900/80 backdrop-blur px-2 py-0.5 rounded border border-slate-700 text-[10px] font-mono text-cyan-300">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span id="canvas-status-badge">ORBITAL FRAME: HILL (LVLH)</span>
+              </div>
+              <div class="flex items-center gap-1 bg-slate-900/80 backdrop-blur px-2 py-0.5 rounded border border-slate-700 text-[10px] font-mono text-slate-300">
+                <span id="sim-fps">60 FPS</span>
+                <span class="text-slate-500">|</span>
+                <span id="sim-clock">T+00:14:22</span>
+              </div>
+            </div>
+
+            <div class="relative w-full h-[320px] bg-slate-950">
+              <canvas id="space-canvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+              <div id="quantum-fringe-box" class="absolute bottom-2 left-2.5 bg-slate-900/90 border border-slate-700 rounded p-1.5 pointer-events-none backdrop-blur flex flex-col gap-1 w-36 shadow-lg">
+                <div class="flex justify-between items-center text-[9px] font-mono text-slate-400">
+                  <span class="text-cyan-300 font-bold">CAI WAVE-PACKET</span>
+                  <span id="fringe-contrast-val" class="text-emerald-400">C: 88%</span>
+                </div>
+                <canvas id="fringe-canvas" width="130" height="26" class="w-full h-[26px] bg-slate-950 rounded"></canvas>
+              </div>
+
+              <div class="absolute bottom-2 right-2.5 bg-slate-900/90 border border-slate-700 rounded px-2 py-1 text-[9px] font-mono text-slate-300 pointer-events-none backdrop-blur flex flex-col items-end gap-0.5">
+                <div class="text-cyan-300 font-semibold" id="hud-nav-mode">MODE: Q-INS GRAV-GRAD</div>
+                <div class="text-slate-400" id="hud-sub-metric">RADIAL ERR: 42.1 m &lt; 100m</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column B: Dynamic Mode Control & Real-time Math Panel -->
+          <div class="md:col-span-5 flex flex-col justify-between bg-surface-card border border-outline-variant rounded-lg p-3 text-xs gap-3">
+            <div id="mode-controls-container" class="flex flex-col gap-2.5"></div>
+
+            <div class="pt-2 border-t border-outline-variant grid grid-cols-2 gap-2 font-mono">
+              <div class="bg-surface rounded p-1.5 border border-outline-variant flex flex-col">
+                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider" id="kpi-1-label">SENSITIVITY Δa</span>
+                <span class="text-xs font-bold text-g-blue truncate" id="kpi-1-val">5.00e-10 m/s²/√Hz</span>
+              </div>
+              <div class="bg-surface rounded p-1.5 border border-outline-variant flex flex-col">
+                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider" id="kpi-2-label">GGT TRACE Tr(V)</span>
+                <span class="text-xs font-bold text-g-mint truncate" id="kpi-2-val">0.00 E (LAPLACE)</span>
+              </div>
+              <div class="bg-surface rounded p-1.5 border border-outline-variant flex flex-col">
+                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider" id="kpi-3-label">WCI WEIGHT ω</span>
+                <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400 truncate" id="kpi-3-val">0.61 (OPTIMAL)</span>
+              </div>
+              <div class="bg-surface rounded p-1.5 border border-outline-variant flex flex-col">
+                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider" id="kpi-4-label">PATH LENGTH</span>
+                <span class="text-xs font-bold text-amber-600 dark:text-amber-400 truncate" id="kpi-4-val">1104.11 m (QUAV)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 4: Live 6-Bot Dynamic Telemetry Strip & Swarm Flight Director -->
+        <div class="w-full bg-surface-card border border-outline-variant rounded-lg p-2.5 flex flex-col gap-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold tracking-wider text-on-surface">6-BOT SURVEILLANCE MATRIX</span>
+              <span class="text-[10px] text-on-surface-variant font-mono">(5 kg 6U Nanosatellites · MAGNUS Protocol)</span>
+            </div>
+            <div class="flex items-center gap-1 text-[11px]">
+              <span class="text-on-surface-variant text-[10px] mr-1 hidden sm:inline">FORMATION:</span>
+              <button id="btn-form-trailing" class="px-2 py-0.5 rounded text-[10px] font-medium border bg-blue-600 text-white border-blue-600 transition">TRAILING</button>
+              <button id="btn-form-cluster" class="px-2 py-0.5 rounded text-[10px] font-medium border bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue transition">CLUSTER</button>
+              <button id="btn-form-constellation" class="px-2 py-0.5 rounded text-[10px] font-medium border bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue transition">CONSTELLATION</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5" id="bots-matrix-container"></div>
+
+          <div class="pt-1.5 border-t border-outline-variant flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-1.5">
+              <button id="btn-play-pause" class="px-2.5 py-1 rounded bg-g-blue text-white font-medium hover:opacity-90 flex items-center gap-1">
+                <span id="play-pause-icon">⏸</span>
+                <span id="play-pause-label">Pause Sim</span>
+              </button>
+              <button id="btn-step" class="px-2 py-1 rounded bg-surface border border-outline-variant text-on-surface hover:bg-slate-100 dark:hover:bg-zinc-800">
+                Step ⏯
+              </button>
+              <button id="btn-anomaly" class="px-2 py-1 rounded bg-rose-600 text-white font-medium hover:bg-rose-700 transition">
+                ⚡ Inject Anomaly
+              </button>
+            </div>
+            <div class="flex items-center gap-2 font-mono text-[11px] text-on-surface-variant">
+              <span>SPEED:</span>
+              <button class="sim-speed-btn px-1.5 py-0.5 rounded border border-outline-variant bg-surface" data-speed="0.5">0.5x</button>
+              <button class="sim-speed-btn px-1.5 py-0.5 rounded border border-blue-600 bg-blue-600 text-white" data-speed="1">1.0x</button>
+              <button class="sim-speed-btn px-1.5 py-0.5 rounded border border-outline-variant bg-surface" data-speed="2">2.0x</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <script>
+      document.fonts.ready.then(() => {
+        const state = {
+          currentMode: 1,
+          simRunning: true,
+          simSpeed: 1.0,
+          simTimeSeconds: 862.0,
+          formation: 'trailing',
+          anomalyInjected: false,
+          anomalyTimer: 0,
+          m1_duration2T: 5,
+          m1_counterRotatingMirror: true,
+          m2_tau: 1.0,
+          m2_distanceAU: 1.42,
+          m3_pld: 0.12,
+          m3_omega: 0.61,
+          m4_algorithm: 'QUAV-QAOA',
+          m4_safetyBuffer: 1.5,
+          m4_cs: 2,
+          m5_pqcLayers: 4,
+          m5_attitudeDisturbance: 0.0,
+          m5_roll: 0.02,
+          m5_pitch: -0.01,
+          m5_yaw: 0.01,
+          m6_elevation: 48,
+          bots: [
+            { id: 'BOT-01', x: 0, y: 0, r: 12.4, omega: 0.61, link: true, forAngle: 55, status: 'TRACKING' },
+            { id: 'BOT-02', x: 0, y: 0, r: 24.1, omega: 0.58, link: true, forAngle: 55, status: 'TRACKING' },
+            { id: 'BOT-03', x: 0, y: 0, r: 35.8, omega: 0.65, link: true, forAngle: 55, status: 'TRACKING' },
+            { id: 'BOT-04', x: 0, y: 0, r: 48.2, omega: 0.52, link: true, forAngle: 55, status: 'TRACKING' },
+            { id: 'BOT-05', x: 0, y: 0, r: 60.5, omega: 0.63, link: true, forAngle: 55, status: 'TRACKING' },
+            { id: 'BOT-06', x: 0, y: 0, r: 72.9, omega: 0.59, link: true, forAngle: 55, status: 'TRACKING' },
+          ],
+          obstacles: [
+            { x: 140, y: -45, size: 14, label: 'DEBRIS-Alpha' },
+            { x: -90, y: 65, size: 18, label: 'DEBRIS-Beta' },
+            { x: 210, y: 80, size: 12, label: 'ASTEROID-07' },
+          ]
+        };
+
+        const spaceCanvas = document.getElementById('space-canvas');
+        const sCtx = spaceCanvas.getContext('2d');
+        const fringeCanvas = document.getElementById('fringe-canvas');
+        const fCtx = fringeCanvas.getContext('2d');
+
+        function resizeCanvas() {
+          const rect = spaceCanvas.parentElement.getBoundingClientRect();
+          spaceCanvas.width = rect.width * (window.devicePixelRatio || 1);
+          spaceCanvas.height = rect.height * (window.devicePixelRatio || 1);
+          sCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const controlsContainer = document.getElementById('mode-controls-container');
+
+        function renderModeControls() {
+          let html = '';
+          if (state.currentMode === 1) {
+            html = `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-on-surface">MODE 1: Q-INS / GGT NAVIGATION</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">COLD-ATOM CAI</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-tight">
+                Atom interferometry with Raman counter-rotating mirror compensation to cancel Coriolis noise &amp; match gravity gradients.
+              </p>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-medium text-on-surface flex justify-between">
+                  <span>Interrogation Time (2T):</span>
+                  <span class="font-mono text-g-blue">${state.m1_duration2T}s</span>
+                </label>
+                <div class="grid grid-cols-3 gap-1">
+                  <button class="m1-2t-btn px-2 py-1 rounded text-[11px] font-mono border ${state.m1_duration2T === 5 ? 'bg-blue-600 text-white border-blue-600' : 'bg-surface border-outline-variant text-on-surface'}" data-2t="5">5s (SOTA)</button>
+                  <button class="m1-2t-btn px-2 py-1 rounded text-[11px] font-mono border ${state.m1_duration2T === 10 ? 'bg-blue-600 text-white border-blue-600' : 'bg-surface border-outline-variant text-on-surface'}" data-2t="10">10s (QPN)</button>
+                  <button class="m1-2t-btn px-2 py-1 rounded text-[11px] font-mono border ${state.m1_duration2T === 20 ? 'bg-blue-600 text-white border-blue-600' : 'bg-surface border-outline-variant text-on-surface'}" data-2t="20">20s (BEC)</button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between py-1 border-t border-outline-variant">
+                <span class="text-[11px] text-on-surface">Raman Counter-Rotating Mirror:</span>
+                <button id="toggle-mirror" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium border ${state.m1_counterRotatingMirror ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-rose-600 text-white border-rose-600'}">
+                  ${state.m1_counterRotatingMirror ? 'ACTIVE (>50%)' : 'OFF (1e-8)'}
+                </button>
+              </div>
+              <div class="bg-surface rounded p-2 border border-outline-variant text-[11px] font-mono flex flex-col gap-1">
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Cold Gyro Ω:</span>
+                  <span class="text-on-surface font-semibold">-1142 ± 29 µrad/s</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">GGT Tensor Vxx, Vyy, Vzz:</span>
+                  <span class="text-emerald-600 dark:text-emerald-400 font-semibold">+28.4, -14.2, -14.2 E</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Laplace Trace Constraint:</span>
+                  <span class="text-cyan-600 dark:text-cyan-400 font-bold">Vxx+Vyy+Vzz = 0.00 E</span>
+                </div>
+              </div>`;
+          } else if (state.currentMode === 2) {
+            html = `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-on-surface">MODE 2: Q-PNT &amp; RELATIVISTIC QFI</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300">40.5 GHz Hg+ TRAP</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-tight">
+                Deep Space Atomic Clock trapped-ion stability with Schwarzschild spacetime Quantum Fisher Information estimation.
+              </p>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px]">
+                  <span>Averaging Time (τ):</span>
+                  <span class="font-mono text-g-blue">${state.m2_tau.toFixed(1)} s</span>
+                </div>
+                <input type="range" id="slider-tau" min="1" max="1000" step="1" value="${state.m2_tau}" class="w-full">
+              </div>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px]">
+                  <span>Earth Distance (AU):</span>
+                  <span class="font-mono text-cyan-600 dark:text-cyan-400">${state.m2_distanceAU.toFixed(2)} AU</span>
+                </div>
+                <input type="range" id="slider-au" min="0.1" max="5.0" step="0.05" value="${state.m2_distanceAU}" class="w-full">
+              </div>
+              <div class="bg-surface rounded p-2 border border-outline-variant text-[11px] font-mono flex flex-col gap-1">
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">One-Way Light Time (OWLT):</span>
+                  <span class="text-on-surface font-semibold">${((state.m2_distanceAU * 149.6e6) / 299792).toFixed(1)} s</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Fractional Stability σ_y(τ):</span>
+                  <span class="text-g-blue font-semibold">${(1.5e-13 / Math.sqrt(state.m2_tau)).toExponential(2)}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Schwarzschild QFI (F_Q):</span>
+                  <span class="text-emerald-600 dark:text-emerald-400 font-bold">1.48e+18 rad⁻²</span>
+                </div>
+              </div>`;
+          } else if (state.currentMode === 3) {
+            html = `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-on-surface">MODE 3: SWARM COOPERATIVE WCI</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300">GCC-AKF FUSION</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-tight">
+                Weighted Covariance Intersection with GCC-AKF outlier rejection under random inter-satellite link drops (p_ld).
+              </p>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px]">
+                  <span>Link Drop Probability (p_ld):</span>
+                  <span class="font-mono text-rose-500 font-bold">${state.m3_pld.toFixed(2)}</span>
+                </div>
+                <input type="range" id="slider-pld" min="0.00" max="0.50" step="0.02" value="${state.m3_pld}" class="w-full">
+              </div>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px]">
+                  <span>WCI Fusion Weight (ω):</span>
+                  <span class="font-mono text-cyan-600 dark:text-cyan-400 font-bold">${state.m3_omega.toFixed(2)}</span>
+                </div>
+                <input type="range" id="slider-omega" min="0.01" max="0.99" step="0.01" value="${state.m3_omega}" class="w-full">
+              </div>
+              <div class="bg-surface rounded p-2 border border-outline-variant text-[11px] font-mono flex flex-col gap-1">
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Expected Active Links E[Ni]:</span>
+                  <span class="text-emerald-600 dark:text-emerald-400 font-semibold">${((1 - state.m3_pld) * 5).toFixed(2)} / 5</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Fused Covariance Tr(P):</span>
+                  <span class="text-on-surface font-semibold">${(0.14 / state.m3_omega + 0.08 / (1 - state.m3_omega)).toFixed(3)} m²</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">GCC-AKF Innovation State:</span>
+                  <span class="${state.anomalyInjected ? 'text-rose-600 font-bold animate-pulse' : 'text-emerald-600'}">
+                    ${state.anomalyInjected ? 'REJECTED (SPURIOUS)' : 'NOMINAL CONSISTENT'}
+                  </span>
+                </div>
+              </div>`;
+          } else if (state.currentMode === 4) {
+            html = `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-on-surface">MODE 4: QUAV-QAOA PATH OPTIMIZER</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">DARBO κ_s=4</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-tight">
+                Quantum approximate optimization with obstacle buffer scaling and mean-field classical spin dynamics.
+              </p>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-medium text-on-surface">Algorithm Core:</label>
+                <div class="grid grid-cols-2 gap-1 text-[11px] font-mono">
+                  <button class="m4-algo-btn px-2 py-1 rounded border text-left truncate ${state.m4_algorithm === 'QUAV-QAOA' ? 'bg-purple-600 text-white border-purple-600' : 'bg-surface border-outline-variant text-on-surface'}" data-algo="QUAV-QAOA">QUAV-QAOA (1104m)</button>
+                  <button class="m4-algo-btn px-2 py-1 rounded border text-left truncate ${state.m4_algorithm === 'Mean-Field AOA' ? 'bg-purple-600 text-white border-purple-600' : 'bg-surface border-outline-variant text-on-surface'}" data-algo="Mean-Field AOA">Mean-Field O(pN²)</button>
+                  <button class="m4-algo-btn px-2 py-1 rounded border text-left truncate ${state.m4_algorithm === 'RRT' ? 'bg-purple-600 text-white border-purple-600' : 'bg-surface border-outline-variant text-on-surface'}" data-algo="RRT">RRT (1561.99m)</button>
+                  <button class="m4-algo-btn px-2 py-1 rounded border text-left truncate ${state.m4_algorithm === 'A*' ? 'bg-purple-600 text-white border-purple-600' : 'bg-surface border-outline-variant text-on-surface'}" data-algo="A*">A* (380.00m)</button>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px]">
+                  <span>Safety Buffer (s_x, s_y):</span>
+                  <span class="font-mono text-purple-600 font-bold">${state.m4_safetyBuffer.toFixed(1)}x</span>
+                </div>
+                <input type="range" id="slider-buffer" min="1.0" max="3.0" step="0.1" value="${state.m4_safetyBuffer}" class="w-full">
+              </div>
+              <div class="bg-surface rounded p-2 border border-outline-variant text-[11px] font-mono flex flex-col gap-1">
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Trotter Depth / Exponent:</span>
+                  <span class="text-on-surface font-semibold">p = 12 / ω = 0.61</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">DARBO Exploration β:</span>
+                  <span class="text-emerald-600 font-semibold">0.20 (c_s = ${state.m4_cs}/4)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Parisi Bound ε_P:</span>
+                  <span class="text-cyan-600 font-bold">-0.763 (CONVERGED)</span>
+                </div>
+              </div>`;
+          } else if (state.currentMode === 5) {
+            html = `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-on-surface">MODE 5: PQC QUANTUM RL ATTITUDE</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300">4.29x COMPACT</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-tight">
+                Parameterized Quantum Circuit attitude restoration using symmetric difference quotient observable loss gradient.
+              </p>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px]">
+                  <span>PQC Entanglement Layers (L):</span>
+                  <span class="font-mono text-emerald-600 font-bold">${state.m5_pqcLayers} Layers</span>
+                </div>
+                <input type="range" id="slider-pqc" min="2" max="8" step="1" value="${state.m5_pqcLayers}" class="w-full">
+              </div>
+              <div class="flex items-center justify-between py-1 border-t border-outline-variant">
+                <span class="text-[11px] text-on-surface">Momentum Disturbance:</span>
+                <button id="btn-torque" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium border bg-amber-600 text-white border-amber-600 hover:bg-amber-700">
+                  ⚡ Inject 4.5°/s Torque
+                </button>
+              </div>
+              <div class="bg-surface rounded p-2 border border-outline-variant text-[11px] font-mono flex flex-col gap-1">
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Memory Parameter Reduction:</span>
+                  <span class="text-emerald-600 font-bold">4.29x vs DQN (3.77x AC)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Estimated Euler Rates [R,P,Y]:</span>
+                  <span class="text-on-surface font-semibold">${state.m5_roll.toFixed(2)}°, ${state.m5_pitch.toFixed(2)}°, ${state.m5_yaw.toFixed(2)}°</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Gradient Optimization:</span>
+                  <span class="text-g-blue font-semibold">Sym-Diff Quotient ΔL/Δθ</span>
+                </div>
+              </div>`;
+          } else if (state.currentMode === 6) {
+            html = `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-on-surface">MODE 6: CUBESAT QKD &amp; CCSDS DTN</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300">100 MHz ALICE</span>
+              </div>
+              <p class="text-[11px] text-on-surface-variant leading-tight">
+                Hybrid de Bruijn code (HDBC) pulsed laser synchronization with 1.99 Mbits LEO quantum key distribution.
+              </p>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between text-[11px]">
+                  <span>Elevation Angle (θ):</span>
+                  <span class="font-mono text-cyan-600 dark:text-cyan-400 font-bold">${state.m6_elevation}° (&gt;20° Lock)</span>
+                </div>
+                <input type="range" id="slider-elev" min="20" max="90" step="1" value="${state.m6_elevation}" class="w-full">
+              </div>
+              <div class="bg-surface rounded p-2 border border-outline-variant text-[11px] font-mono flex flex-col gap-1">
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Single Pass Key Yield:</span>
+                  <span class="text-emerald-600 font-bold">${(1.99 * Math.sin(state.m6_elevation * Math.PI / 180)).toFixed(2)} Mbits (340s)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">Daily Contact Time Window:</span>
+                  <span class="text-on-surface font-semibold">2,010 s / day (33.5 min)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">CCSDS DTN Protocol Tier:</span>
+                  <span class="text-cyan-600 font-bold">&gt;10 Mbps Optical (Wide)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-on-surface-variant">DP Inter-Sat Bundles:</span>
+                  <span class="text-on-surface font-semibold">8,341 / &lt;1 min runtime</span>
+                </div>
+              </div>`;
+          }
+          controlsContainer.innerHTML = html;
+          attachModeControlListeners();
+          updateKPIs();
+        }
+
+        function attachModeControlListeners() {
+          if (state.currentMode === 1) {
+            document.querySelectorAll('.m1-2t-btn').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                state.m1_duration2T = parseInt(e.currentTarget.getAttribute('data-2t'));
+                renderModeControls();
+              });
+            });
+            const mirrorBtn = document.getElementById('toggle-mirror');
+            if (mirrorBtn) {
+              mirrorBtn.addEventListener('click', () => {
+                state.m1_counterRotatingMirror = !state.m1_counterRotatingMirror;
+                renderModeControls();
+              });
+            }
+          } else if (state.currentMode === 2) {
+            document.getElementById('slider-tau')?.addEventListener('input', (e) => {
+              state.m2_tau = parseFloat(e.target.value);
+              renderModeControls();
+            });
+            document.getElementById('slider-au')?.addEventListener('input', (e) => {
+              state.m2_distanceAU = parseFloat(e.target.value);
+              renderModeControls();
+            });
+          } else if (state.currentMode === 3) {
+            document.getElementById('slider-pld')?.addEventListener('input', (e) => {
+              state.m3_pld = parseFloat(e.target.value);
+              renderModeControls();
+            });
+            document.getElementById('slider-omega')?.addEventListener('input', (e) => {
+              state.m3_omega = parseFloat(e.target.value);
+              state.bots.forEach(b => b.omega = state.m3_omega);
+              renderModeControls();
+              renderBotMatrix();
+            });
+          } else if (state.currentMode === 4) {
+            document.querySelectorAll('.m4-algo-btn').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                state.m4_algorithm = e.currentTarget.getAttribute('data-algo');
+                renderModeControls();
+              });
+            });
+            document.getElementById('slider-buffer')?.addEventListener('input', (e) => {
+              state.m4_safetyBuffer = parseFloat(e.target.value);
+              renderModeControls();
+            });
+          } else if (state.currentMode === 5) {
+            document.getElementById('slider-pqc')?.addEventListener('input', (e) => {
+              state.m5_pqcLayers = parseInt(e.target.value);
+              renderModeControls();
+            });
+            document.getElementById('btn-torque')?.addEventListener('click', () => {
+              state.m5_attitudeDisturbance = 4.5;
+              state.m5_yaw = 4.5;
+              renderModeControls();
+            });
+          } else if (state.currentMode === 6) {
+            document.getElementById('slider-elev')?.addEventListener('input', (e) => {
+              state.m6_elevation = parseInt(e.target.value);
+              renderModeControls();
+            });
+          }
+        }
+
+        document.querySelectorAll('.mode-tab-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            state.currentMode = parseInt(e.currentTarget.getAttribute('data-mode'));
+            document.querySelectorAll('.mode-tab-btn').forEach(b => {
+              b.className = 'mode-tab-btn py-2 px-1 text-center rounded border transition text-xs font-semibold flex flex-col items-center justify-center gap-0.5 bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue';
+            });
+            e.currentTarget.className = 'mode-tab-btn py-2 px-1 text-center rounded border transition text-xs font-semibold flex flex-col items-center justify-center gap-0.5 bg-blue-600 text-white border-blue-600 shadow-sm';
+            renderModeControls();
+          });
+        });
+
+        function setFormation(form) {
+          state.formation = form;
+          ['trailing', 'cluster', 'constellation'].forEach(f => {
+            const btn = document.getElementById(`btn-form-${f}`);
+            btn.className = (f === form)
+              ? 'px-2 py-0.5 rounded text-[10px] font-medium border bg-blue-600 text-white border-blue-600 transition'
+              : 'px-2 py-0.5 rounded text-[10px] font-medium border bg-surface text-on-surface-variant border-outline-variant hover:border-g-blue transition';
+          });
+        }
+        document.getElementById('btn-form-trailing').addEventListener('click', () => setFormation('trailing'));
+        document.getElementById('btn-form-cluster').addEventListener('click', () => setFormation('cluster'));
+        document.getElementById('btn-form-constellation').addEventListener('click', () => setFormation('constellation'));
+
+        const playPauseBtn = document.getElementById('btn-play-pause');
+        playPauseBtn.addEventListener('click', () => {
+          state.simRunning = !state.simRunning;
+          document.getElementById('play-pause-icon').textContent = state.simRunning ? '⏸' : '▶';
+          document.getElementById('play-pause-label').textContent = state.simRunning ? 'Pause Sim' : 'Resume';
+        });
+
+        document.getElementById('btn-step').addEventListener('click', () => {
+          state.simTimeSeconds += 1.0;
+          stepSimulationPhysics(1.0);
+        });
+
+        document.getElementById('btn-anomaly').addEventListener('click', () => {
+          state.anomalyInjected = true;
+          state.anomalyTimer = 5.0;
+          state.bots[3].status = 'ANOMALY (DROPPED)';
+          state.bots[3].link = false;
+          renderModeControls();
+          renderBotMatrix();
+        });
+
+        document.querySelectorAll('.sim-speed-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            state.simSpeed = parseFloat(e.currentTarget.getAttribute('data-speed'));
+            document.querySelectorAll('.sim-speed-btn').forEach(b => {
+              b.className = 'sim-speed-btn px-1.5 py-0.5 rounded border border-outline-variant bg-surface';
+            });
+            e.currentTarget.className = 'sim-speed-btn px-1.5 py-0.5 rounded border border-blue-600 bg-blue-600 text-white';
+          });
+        });
+
+        const botMatrixContainer = document.getElementById('bots-matrix-container');
+        function renderBotMatrix() {
+          let html = '';
+          state.bots.forEach((bot, idx) => {
+            const isNominal = bot.link && !(state.anomalyInjected && idx === 3);
+            const statusClass = isNominal 
+              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' 
+              : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 animate-pulse';
+
+            html += `
+              <div class="bg-surface border border-outline-variant rounded p-1.5 flex flex-col gap-1 text-[10px] font-mono shadow-sm">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-on-surface">${bot.id}</span>
+                  <span class="w-1.5 h-1.5 rounded-full ${isNominal ? 'bg-emerald-400' : 'bg-rose-500'}"></span>
+                </div>
+                <div class="flex justify-between text-on-surface-variant">
+                  <span>RNG:</span>
+                  <span class="text-on-surface font-medium">${bot.r.toFixed(1)} km</span>
+                </div>
+                <div class="flex justify-between text-on-surface-variant">
+                  <span>WCI ω:</span>
+                  <span class="text-cyan-600 dark:text-cyan-400 font-bold">${bot.omega.toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between text-on-surface-variant">
+                  <span>FOR:</span>
+                  <span class="text-on-surface">${bot.forAngle}°</span>
+                </div>
+                <div class="pt-0.5 border-t border-outline-variant text-[9px] text-center font-bold px-1 rounded ${statusClass} truncate">
+                  ${isNominal ? 'HDBC-SYNC' : 'OUTLIER REJ'}
+                </div>
+              </div>`;
+          });
+          botMatrixContainer.innerHTML = html;
+        }
+
+        function updateKPIs() {
+          const k1L = document.getElementById('kpi-1-label');
+          const k1V = document.getElementById('kpi-1-val');
+          const k2L = document.getElementById('kpi-2-label');
+          const k2V = document.getElementById('kpi-2-val');
+          const k3L = document.getElementById('kpi-3-label');
+          const k3V = document.getElementById('kpi-3-val');
+          const k4L = document.getElementById('kpi-4-label');
+          const k4V = document.getElementById('kpi-4-val');
+
+          if (state.currentMode === 1) {
+            k1L.textContent = 'ACCEL SENSITIVITY';
+            k1V.textContent = state.m1_counterRotatingMirror 
+              ? (state.m1_duration2T === 5 ? '5.00e-10 m/s²/√Hz' : state.m1_duration2T === 10 ? '1.00e-11 m/s²/√Hz' : '1.00e-12 m/s²/√Hz')
+              : '1.00e-08 m/s²/√Hz';
+            k2L.textContent = 'GGT TRACE Tr(V)';
+            k2V.textContent = '0.00 E (LAPLACE)';
+            k3L.textContent = 'COLD GYRO Ω';
+            k3V.textContent = '-1142 ±29 µrad/s';
+            k4L.textContent = 'ORBIT RADIAL ERR';
+            k4V.textContent = '42.1 m (<100m)';
+          } else if (state.currentMode === 2) {
+            k1L.textContent = 'DSAC 40.5 GHz STAB';
+            k1V.textContent = (1.5e-13 / Math.sqrt(state.m2_tau)).toExponential(2);
+            k2L.textContent = 'LONG-TERM DRIFT';
+            k2V.textContent = '3.00e-15 / day';
+            k3L.textContent = 'SCHWARZSCHILD QFI';
+            k3V.textContent = '1.48e+18 rad⁻²';
+            k4L.textContent = 'OWLT LIGHT DELAY';
+            k4V.textContent = ((state.m2_distanceAU * 149.6e6) / 299792).toFixed(1) + ' s';
+          } else if (state.currentMode === 3) {
+            k1L.textContent = 'DROP PROB p_ld';
+            k1V.textContent = state.m3_pld.toFixed(2);
+            k2L.textContent = 'FUSED COV Tr(P)';
+            k2V.textContent = (0.14 / state.m3_omega + 0.08 / (1 - state.m3_omega)).toFixed(3) + ' m²';
+            k3L.textContent = 'WCI WEIGHT ω';
+            k3V.textContent = state.m3_omega.toFixed(2) + ' (OPTIMAL)';
+            k4L.textContent = 'DP SCHEDULER';
+            k4V.textContent = '8,341 pkts/<1min';
+          } else if (state.currentMode === 4) {
+            k1L.textContent = 'SELECTED PLANNER';
+            k1V.textContent = state.m4_algorithm;
+            k2L.textContent = 'PATH METRIC';
+            k2V.textContent = state.m4_algorithm === 'QUAV-QAOA' ? '1104.11 m' : state.m4_algorithm === 'RRT' ? '1561.99 m' : state.m4_algorithm === 'A*' ? '380.00 m' : 'O(pN²) ω=0.61';
+            k3L.textContent = 'SAFETY BUFFER';
+            k3V.textContent = state.m4_safetyBuffer.toFixed(1) + 'x (sx, sy)';
+            k4L.textContent = 'DARBO REGION SW';
+            k4V.textContent = 'κ_s=4 (β=0.2)';
+          } else if (state.currentMode === 5) {
+            k1L.textContent = 'PQC PARAMS';
+            k1V.textContent = '4.29x < DQN (3.77x AC)';
+            k2L.textContent = 'GRADIENT METHOD';
+            k2V.textContent = 'Sym-Diff Quotient';
+            k3L.textContent = 'RECOVERY RATE';
+            k3V.textContent = Math.abs(state.m5_yaw) < 0.05 ? 'LOCKED (<0.01°)' : 'STABILIZING...';
+            k4L.textContent = 'MASS: M / BOTS';
+            k4V.textContent = '210 kg / 6x 5kg';
+          } else if (state.currentMode === 6) {
+            k1L.textContent = 'ALICE PULSE RATE';
+            k1V.textContent = '100 MHz (WEAK)';
+            k2L.textContent = 'KEY YIELD / PASS';
+            k2V.textContent = (1.99 * Math.sin(state.m6_elevation * Math.PI / 180)).toFixed(2) + ' Mbits';
+            k3L.textContent = 'DAILY CONTACT';
+            k3V.textContent = '2,010 s / day';
+            k4L.textContent = 'CCSDS DTN TIER';
+            k4V.textContent = '>10 Mbps Optical';
+          }
+        }
+
+        function stepSimulationPhysics(dt) {
+          if (state.anomalyInjected) {
+            state.anomalyTimer -= dt;
+            if (state.anomalyTimer <= 0) {
+              state.anomalyInjected = false;
+              state.bots[3].status = 'TRACKING';
+              state.bots[3].link = true;
+              renderModeControls();
+              renderBotMatrix();
+            }
+          }
+          if (state.m5_attitudeDisturbance > 0.001) {
+            state.m5_attitudeDisturbance *= 0.94;
+            state.m5_yaw = state.m5_attitudeDisturbance;
+            state.m5_roll = Math.sin(state.simTimeSeconds * 2) * 0.05 * state.m5_attitudeDisturbance;
+            state.m5_pitch = Math.cos(state.simTimeSeconds * 2) * 0.03 * state.m5_attitudeDisturbance;
+          } else {
+            state.m5_roll = 0.01;
+            state.m5_pitch = -0.01;
+            state.m5_yaw = 0.00;
+          }
+          if (Math.random() < 0.04) {
+            state.bots.forEach((b, i) => {
+              if (state.anomalyInjected && i === 3) return;
+              b.link = Math.random() > state.m3_pld;
+            });
+            renderBotMatrix();
+          }
+          state.obstacles.forEach(obs => {
+            obs.x -= 0.25 * state.simSpeed;
+            if (obs.x < -200) obs.x = 240;
+          });
+        }
+
+        let lastTimestamp = 0;
+        let frameCount = 0;
+        let fpsTimer = 0;
+
+        function drawSimulation(timestamp) {
+          if (!lastTimestamp) lastTimestamp = timestamp;
+          const delta = (timestamp - lastTimestamp) / 1000;
+          lastTimestamp = timestamp;
+
+          if (state.simRunning) {
+            const dt = delta * state.simSpeed;
+            state.simTimeSeconds += dt;
+            stepSimulationPhysics(dt);
+          }
+
+          frameCount++;
+          fpsTimer += delta;
+          if (fpsTimer >= 1.0) {
+            document.getElementById('sim-fps').textContent = `${frameCount} FPS`;
+            frameCount = 0;
+            fpsTimer = 0;
+          }
+
+          const mins = Math.floor(state.simTimeSeconds / 60);
+          const secs = Math.floor(state.simTimeSeconds % 60);
+          document.getElementById('sim-clock').textContent = `T+00:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+          const w = spaceCanvas.width / (window.devicePixelRatio || 1);
+          const h = spaceCanvas.height / (window.devicePixelRatio || 1);
+          const cx = w * 0.44;
+          const cy = h * 0.52;
+
+          sCtx.fillStyle = '#060A17';
+          sCtx.fillRect(0, 0, w, h);
+
+          sCtx.save();
+          sCtx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
+          sCtx.lineWidth = 1;
+          for (let r = 50; r <= 180; r += 45) {
+            sCtx.beginPath();
+            sCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            sCtx.stroke();
+          }
+          sCtx.beginPath();
+          sCtx.moveTo(cx - 200, cy);
+          sCtx.lineTo(cx + 200, cy);
+          sCtx.moveTo(cx, cy - 140);
+          sCtx.lineTo(cx, cy + 140);
+          sCtx.stroke();
+          sCtx.restore();
+
+          if (state.currentMode === 1) {
+            sCtx.save();
+            sCtx.strokeStyle = 'rgba(18, 181, 203, 0.15)';
+            sCtx.lineWidth = 1.5;
+            sCtx.setLineDash([4, 6]);
+            for (let i = 1; i <= 3; i++) {
+              sCtx.beginPath();
+              sCtx.ellipse(cx, cy, i * 65, i * 42, 0.35, 0, Math.PI * 2);
+              sCtx.stroke();
+            }
+            sCtx.restore();
+          } else if (state.currentMode === 4) {
+            state.obstacles.forEach(obs => {
+              const ox = cx + obs.x;
+              const oy = cy + obs.y;
+              const bufRadius = obs.size * state.m4_safetyBuffer;
+              sCtx.save();
+              sCtx.fillStyle = 'rgba(250, 144, 62, 0.12)';
+              sCtx.strokeStyle = 'rgba(250, 144, 62, 0.7)';
+              sCtx.setLineDash([3, 3]);
+              sCtx.beginPath();
+              sCtx.arc(ox, oy, bufRadius, 0, Math.PI * 2);
+              sCtx.fill();
+              sCtx.stroke();
+              sCtx.restore();
+
+              sCtx.fillStyle = '#FA903E';
+              sCtx.beginPath();
+              sCtx.arc(ox, oy, obs.size * 0.4, 0, Math.PI * 2);
+              sCtx.fill();
+            });
+
+            sCtx.save();
+            sCtx.strokeStyle = state.m4_algorithm === 'QUAV-QAOA' ? '#C58AF9' : state.m4_algorithm === 'A*' ? '#81C995' : '#FA903E';
+            sCtx.lineWidth = 2.5;
+            sCtx.beginPath();
+            sCtx.moveTo(cx - 160, cy + 50);
+            sCtx.bezierCurveTo(cx - 60, cy - 70, cx + 50, cy + 90, cx + 180, cy - 20);
+            sCtx.stroke();
+            sCtx.restore();
+          }
+
+          const t = state.simTimeSeconds;
+          state.bots.forEach((bot, i) => {
+            let bx, by;
+            if (state.formation === 'trailing') {
+              const dist = (i + 1) * 28;
+              bx = cx - dist;
+              by = cy + Math.sin(t * 1.5 + i * 0.9) * 14;
+            } else if (state.formation === 'cluster') {
+              const angle = (i / 6) * Math.PI * 2 + t * 0.4;
+              const a = 90 + (i % 2) * 25;
+              const b = 50 + (i % 2) * 15;
+              bx = cx + Math.cos(angle) * a;
+              by = cy + Math.sin(angle) * b;
+            } else {
+              const angle = (i / 6) * Math.PI * 2 + t * 0.15;
+              bx = cx + Math.cos(angle) * 125;
+              by = cy + Math.sin(angle) * 125;
+            }
+            bot.x = bx;
+            bot.y = by;
+            bot.r = Math.sqrt((bx - cx) ** 2 + (by - cy) ** 2) * 0.35;
+
+            const isDropped = !bot.link || (state.anomalyInjected && i === 3);
+
+            sCtx.save();
+            const sweepAngle = Math.atan2(by - cy, bx - cx) + Math.sin(t * 2 + i) * 0.2;
+            const halfFor = (bot.forAngle / 2) * (Math.PI / 180);
+            sCtx.beginPath();
+            sCtx.moveTo(bx, by);
+            sCtx.arc(bx, by, 35, sweepAngle - halfFor, sweepAngle + halfFor);
+            sCtx.closePath();
+            sCtx.fillStyle = isDropped ? 'rgba(217, 48, 37, 0.08)' : 'rgba(18, 181, 203, 0.08)';
+            sCtx.fill();
+            sCtx.restore();
+
+            sCtx.save();
+            sCtx.beginPath();
+            sCtx.moveTo(cx, cy);
+            sCtx.lineTo(bx, by);
+            sCtx.strokeStyle = isDropped ? 'rgba(217, 48, 37, 0.4)' : 'rgba(129, 201, 149, 0.7)';
+            sCtx.lineWidth = isDropped ? 1 : 1.4;
+            if (isDropped) sCtx.setLineDash([4, 4]);
+            sCtx.stroke();
+            sCtx.restore();
+
+            sCtx.save();
+            sCtx.translate(bx, by);
+            sCtx.fillStyle = isDropped ? '#D93025' : '#81C995';
+            sCtx.fillRect(-4, -4, 8, 8);
+            sCtx.fillStyle = '#1A73E8';
+            sCtx.fillRect(-10, -2, 5, 4);
+            sCtx.fillRect(5, -2, 5, 4);
+            sCtx.font = '8px "JetBrains Mono"';
+            sCtx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+            sCtx.fillText(bot.id, -12, 14);
+            sCtx.restore();
+          });
+
+          sCtx.save();
+          sCtx.translate(cx, cy);
+          sCtx.rotate((state.m5_yaw * Math.PI) / 180);
+          sCtx.fillStyle = '#1A73E8';
+          sCtx.beginPath();
+          for (let a = 0; a < 6; a++) {
+            const angle = (a / 6) * Math.PI * 2;
+            const px = Math.cos(angle) * 11;
+            const py = Math.sin(angle) * 11;
+            if (a === 0) sCtx.moveTo(px, py);
+            else sCtx.lineTo(px, py);
+          }
+          sCtx.closePath();
+          sCtx.fill();
+
+          sCtx.fillStyle = state.m1_counterRotatingMirror ? '#12B5CB' : '#FA903E';
+          sCtx.beginPath();
+          sCtx.arc(0, 0, 4.5, 0, Math.PI * 2);
+          sCtx.fill();
+
+          sCtx.fillStyle = '#0F2B5C';
+          sCtx.strokeStyle = '#5B8DEF';
+          sCtx.lineWidth = 1;
+          sCtx.strokeRect(-28, -6, 16, 12);
+          sCtx.fillRect(-28, -6, 16, 12);
+          sCtx.strokeRect(12, -6, 16, 12);
+          sCtx.fillRect(12, -6, 16, 12);
+          sCtx.restore();
+
+          drawQuantumFringes();
+          requestAnimationFrame(drawSimulation);
+        }
+
+        function drawQuantumFringes() {
+          const fw = fringeCanvas.width;
+          const fh = fringeCanvas.height;
+          fCtx.fillStyle = '#050811';
+          fCtx.fillRect(0, 0, fw, fh);
+
+          const contrast = state.m1_counterRotatingMirror ? (state.m1_duration2T === 5 ? 0.88 : state.m1_duration2T === 10 ? 0.76 : 0.62) : 0.18;
+          const contrastEl = document.getElementById('fringe-contrast-val');
+          contrastEl.textContent = `C: ${(contrast * 100).toFixed(0)}%`;
+          contrastEl.className = contrast > 0.5 ? 'text-emerald-400 font-bold' : 'text-rose-500 font-bold';
+
+          fCtx.strokeStyle = state.m1_counterRotatingMirror ? '#12B5CB' : '#D93025';
+          fCtx.lineWidth = 1.5;
+          fCtx.beginPath();
+          for (let x = 0; x < fw; x++) {
+            const phase = (x * 0.15) + (state.simTimeSeconds * 3);
+            const noise = (Math.random() - 0.5) * (1 - contrast) * 14;
+            const y = (fh / 2) + Math.cos(phase) * (fh * 0.38 * contrast) + noise;
+            if (x === 0) fCtx.moveTo(x, y);
+            else fCtx.lineTo(x, y);
+          }
+          fCtx.stroke();
+        }
+
+        renderModeControls();
+        renderBotMatrix();
+        requestAnimationFrame(drawSimulation);
+      });
+    </script>
+  </body>
+</html>
