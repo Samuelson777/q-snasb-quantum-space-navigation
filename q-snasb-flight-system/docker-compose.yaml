@@ -1,0 +1,35 @@
+# File: docker-compose.yml
+version: "3.9"
+services:
+  layer1_quantum_firmware:
+    image: gcc:13
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    command: >
+      bash -c "g++ -std=c++20 -O3 firmware/quantum_core_driver.cpp -o /tmp/quantum_core_driver && /tmp/quantum_core_driver"
+
+  layer2_swarm_middleware:
+    image: gcc:13
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    command: >
+      bash -c "g++ -std=c++20 -O3 middleware/swarm_wci_dtn_node.cpp -o /tmp/swarm_wci_dtn_node && /tmp/swarm_wci_dtn_node"
+
+  layer3_quantum_coprocessor:
+    image: python:3.11-slim
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    command: >
+      bash -c "pip install --no-cache-dir numpy && python3 quantum_co_processor/q_navigation_engine.py"
+
+  layer4_qmct_flight_deck:
+    image: python:3.11-slim
+    working_dir: /workspace/ui
+    volumes:
+      - ./ui:/workspace/ui
+    ports:
+      - "8080:8080"
+    command: python3 -m http.server 8080
