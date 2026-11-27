@@ -1,35 +1,218 @@
 # File: docker-compose.yml
-version: "3.9"
+# Project: Quantum Space Navigation and Adaptive Surveillance Bot System (Q-SNASB v4.2)
+# Architecture: 4-Layer Software-in-the-Loop (SIL) Flight Stack & CCSDS DTN Avionics Bus
+
+name: q-snasb-flight-system
+
+networks:
+  qsnasb_avionics_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
+
+volumes:
+  qsnasb_build_artifacts:
+  qsnasb_dtn_bundles:
+
 services:
+  # ============================================================================
+  # LAYER 1: Hard-Real-Time Quantum Sensing Firmware (10 kHz RTOS / FPGA Core)
+  # Drives 3-Axis Chu-Borde 87Rb CAI, Counter-Rotating Mirror, GGT & 40.5 GHz DSAC
+  # ============================================================================
   layer1_quantum_firmware:
-    image: gcc:13
+    image: gcc:13-bookworm
+    container_name: qsnasb_layer1_quantum_core
     working_dir: /workspace
+    networks:
+      qsnasb_avionics_net:
+        ipv4_address: 172.28.0.10
     volumes:
-      - .:/workspace
+      - ./CMakeLists.txt:/workspace/CMakeLists.txt:ro
+      - ./firmware:/workspace/firmware:ro
+      - qsnasb_build_artifacts:/workspace/build
+      - qsnasb_dtn_bundles:/var/spool/qsnasb/telemetry
+    environment:
+      - QSNASB_LAYER=1
+      - CAI_INTERROGATION_2T_S=10.0
+      - CAI_CYCLE_TIME_S=1.0
+      - DSAC_SYNTH_FREQ_HZ=40500000000
+      - COUNTER_ROTATING_MIRROR=ENABLED
+      - LAPLACE_BIST_THRESHOLD_E=0.0047
     command: >
-      bash -c "g++ -std=c++20 -O3 firmware/quantum_core_driver.cpp -o /tmp/quantum_core_driver && /tmp/quantum_core_driver"
+      bash -c "
+        mkdir -p /workspace/build /var/spool/qsnasb/telemetry &&
+        g++ -std=c++20 -O3 -Wall -Wextra -Wpedantic /workspace/firmware/quantum_core_driver.cpp -o /workspace/build/quantum_core_driver &&
+        while true; do
+          /workspace/build/quantum_core_driver | tee /var/spool/qsnasb/telemetry/layer1_quantum_core.log;
+          sleep 5;
+        done
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q 'PASS' /var/spool/qsnasb/telemetry/layer1_quantum_core.log"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
 
+  # ============================================================================
+  # LAYER 2: Distributed Swarm Estimation & CCSDS DTN Middleware (10-100 Hz)
+  # Executes 6-Bot WCI, GCC-AKF, Logical AND-Gate, 55-deg FOR DP & 100 MHz QKD
+  # ============================================================================
   layer2_swarm_middleware:
-    image: gcc:13
+    image: gcc:13-bookworm
+    container_name: qsnasb_layer2_swarm_dtn
     working_dir: /workspace
+    depends_on:
+      layer1_quantum_firmware:
+        condition: service_healthy
+    networks:
+      qsnasb_avionics_net:
+        ipv4_address: 172.28.0.20
     volumes:
-      - .:/workspace
+      - ./CMakeLists.txt:/workspace/CMakeLists.txt:ro
+      - ./middleware:/workspace/middleware:ro
+      - qsnasb_build_artifacts:/workspace/build
+      - qsnasb_dtn_bundles:/var/spool/qsnasb/telemetry
+    environment:
+      - QSNASB_LAYER=2
+      - MOTHER_SPACECRAFT_MASS_KG=210
+      - SURVEILLANCE_BOT_COUNT=6
+      - SURVEILLANCE_BOT_MASS_KG=5
+      - MAX_FOR_ANGLE_DEG=55.0
+      - QKD_PULSE_RATE_MHZ=100
+      - LINK_DROP_PROB_PLD=0.12
     command: >
-      bash -c "g++ -std=c++20 -O3 middleware/swarm_wci_dtn_node.cpp -o /tmp/swarm_wci_dtn_node && /tmp/swarm_wci_dtn_node"
+      bash -c "
+        mkdir -p /workspace/build /var/spool/qsnasb/telemetry &&
+        g++ -std=c++20 -O3 -Wall -Wextra -Wpedantic /workspace/middleware/swarm_wci_dtn_node.cpp -o /workspace/build/swarm_wci_dtn_node &&
+        while true; do
+          /workspace/build/swarm_wci_dtn_node | tee /var/spool/qsnasb/telemetry/layer2_swarm_dtn.log;
+          sleep 5;
+        done
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q 'ADMITTED' /var/spool/qsnasb/telemetry/layer2_swarm_dtn.log"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
 
+  # ============================================================================
+  # LAYER 3: Hybrid Quantum-Classical Co-Processing Engine
+  # Runs QUAV-QAOA, DARBO (kappa_s=4, beta=0.2), O(pN^2) Mean-Field AOA,
+  # 3-Stage PQC-QRL Attitude Controller & Relativistic Schwarzschild QFIM
+  # ============================================================================
   layer3_quantum_coprocessor:
-    image: python:3.11-slim
+    image: python:3.11-slim-bookworm
+    container_name: qsnasb_layer3_qpu_coprocessor
     working_dir: /workspace
+    depends_on:
+      layer2_swarm_middleware:
+        condition: service_healthy
+    networks:
+      qsnasb_avionics_net:
+        ipv4_address: 172.28.0.30
     volumes:
-      - .:/workspace
+      - ./requirements.txt:/workspace/requirements.txt:ro
+      - ./quantum_co_processor:/workspace/quantum_co_processor:ro
+      - qsnasb_dtn_bundles:/var/spool/qsnasb/telemetry
+    environment:
+      - PYTHONUNBUFFERED=1
+      - QSNASB_LAYER=3
+      - DARBO_BETA=0.2
+      - DARBO_KAPPA_S=4
+      - MEAN_FIELD_AOA_LAYERS=400
+      - PQC_QUBITS=4
+      - PQC_LAYERS=3
     command: >
-      bash -c "pip install --no-cache-dir numpy && python3 quantum_co_processor/q_navigation_engine.py"
+      bash -c "
+        pip install --no-cache-dir numpy scipy &&
+        while true; do
+          python3 /workspace/quantum_co_processor/q_navigation_engine.py | tee /var/spool/qsnasb/telemetry/layer3_qpu_coprocessor.log;
+          sleep 10;
+        done
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q 'Relativistic QFIM' /var/spool/qsnasb/telemetry/layer3_qpu_coprocessor.log"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
 
+  # ============================================================================
+  # LAYER 4: Q-MCT v4.2 Interactive Flight Deck & Analytical Benchmark Modules
+  # Serves:
+  #   - http://localhost:8080/q_mct_flight_deck.html
+  #   - http://localhost:8080/metrology_benchmarks.html
+  #   - http://localhost:8080/algorithmic_benchmarks.html
+  # ============================================================================
   layer4_qmct_flight_deck:
-    image: python:3.11-slim
+    image: python:3.11-slim-bookworm
+    container_name: qsnasb_layer4_qmct_ui
     working_dir: /workspace/ui
-    volumes:
-      - ./ui:/workspace/ui
+    depends_on:
+      layer1_quantum_firmware:
+        condition: service_started
+      layer2_swarm_middleware:
+        condition: service_started
+      layer3_quantum_coprocessor:
+        condition: service_started
+    networks:
+      qsnasb_avionics_net:
+        ipv4_address: 172.28.0.40
     ports:
       - "8080:8080"
-    command: python3 -m http.server 8080
+    volumes:
+      - ./ui:/workspace/ui:ro
+      - qsnasb_dtn_bundles:/workspace/ui/telemetry:ro
+    environment:
+      - QSNASB_LAYER=4
+      - QMCT_VERSION=4.2.0
+    command: python3 -m http.server 8080 --bind 0.0.0.0 --directory /workspace/ui
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/q_mct_flight_deck.html'); urllib.request.urlopen('http://127.0.0.1:8080/metrology_benchmarks.html'); urllib.request.urlopen('http://127.0.0.1:8080/algorithmic_benchmarks.html')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  # ============================================================================
+  # OPTIONAL PROFILE: End-to-End Software-in-the-Loop (SIL) Verification Suite
+  # Run via: docker compose --profile verify up --abort-on-container-exit
+  # ============================================================================
+  sil_verification_suite:
+    image: python:3.11-slim-bookworm
+    container_name: qsnasb_sil_verifier
+    profiles: ["verify"]
+    depends_on:
+      layer1_quantum_firmware:
+        condition: service_healthy
+      layer2_swarm_middleware:
+        condition: service_healthy
+      layer3_quantum_coprocessor:
+        condition: service_healthy
+      layer4_qmct_flight_deck:
+        condition: service_healthy
+    networks:
+      qsnasb_avionics_net:
+        ipv4_address: 172.28.0.50
+    volumes:
+      - qsnasb_dtn_bundles:/var/spool/qsnasb/telemetry:ro
+    command: >
+      python3 -c "
+      import urllib.request, pathlib
+      for log in ['layer1_quantum_core.log', 'layer2_swarm_dtn.log', 'layer3_qpu_coprocessor.log']:
+          p = pathlib.Path('/var/spool/qsnasb/telemetry') / log
+          assert p.exists() and p.stat().st_size > 0, f'Missing telemetry: {log}'
+          print(f'[VERIFIED] {log} ({p.stat().st_size} bytes)')
+      for page in ['q_mct_flight_deck.html', 'metrology_benchmarks.html', 'algorithmic_benchmarks.html']:
+          res = urllib.request.urlopen(f'http://172.28.0.40:8080/{page}', timeout=5)
+          assert res.status == 200, f'HTTP {res.status} on {page}'
+          print(f'[VERIFIED] HTTP 200 OK -> {page}')
+      print('ALL 4 Q-SNASB LAYERS VERIFIED NOMINAL.')
+      "
