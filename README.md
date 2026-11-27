@@ -2,6 +2,10 @@
 
 **Status:** TRL-6 Hardware/Software-in-the-Loop (HIL/SIL) Verified | **Architecture:** NASA Open MCT Composable Web Framework & C++20 / Python 3.11 Flight Stack | **License:** MIT | **Author:** SAMUELSON G
 
+[![Hugging Face](https://img.shields.io/badge/Stratagem%203%20Counter%20AI-%23FF9900.svg?style=plastic&logo=huggingface&logoColor=white)](https://huggingface.co/spaces/Samuelson77/q-snasb-flight-deck)
+
+[![Hugging Face](https://img.shields.io/badge/Stratagem%20AI%20Counter%20Engine-%23FF9900.svg?style=plastic&logo=huggingface&logoColor=white)](https://huggingface.co/spaces/Samuelson77/q-snasb-mission-control)
+
 ---
 
 ## Executive Summary & Mission Objective
