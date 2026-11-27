@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Q-MCT v4.2 Algorithmic Benchmarks: QUAV Path Length, Mean-Field AOA &amp; QRL Compression</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      @font-face {
+        font-family: "Google Sans";
+        src: url("https://fonts.gstatic.com/s/googlesans/v58/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2") format("woff2");
+        font-weight: 400; font-style: normal; font-display: swap;
+      }
+      :root, html[data-theme="light"] {
+        --surface-color: #FFFFFF;
+        --surface-card: #F8FAFC;
+        --on-surface: #1B1C1D;
+        --on-surface-variant: #575B5F;
+        --outline-variant: #E2E8F0;
+        --google-blue: #1A73E8;
+        --cyan: #12B5CB;
+        --purple: #9334E6;
+        --tangerine: #FA903E;
+        --mint-green: #81C995;
+      }
+      html[data-theme="dark"] {
+        --surface-color: #141414;
+        --surface-card: #1E222B;
+        --on-surface: #FFFFFF;
+        --on-surface-variant: #A2A9B0;
+        --outline-variant: #333942;
+        --google-blue: #1A73E8;
+        --cyan: #12B5CB;
+        --purple: #A142F4;
+        --tangerine: #FA903E;
+        --mint-green: #81C995;
+      }
+      .tabular-nums {
+        font-variant-numeric: tabular-nums;
+      }
+      input[type=range] {
+        -webkit-appearance: none;
+        background: var(--outline-variant);
+        height: 4px;
+        border-radius: 2px;
+      }
+      input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 14px;
+        width: 14px;
+        border-radius: 50%;
+        background: var(--purple);
+        cursor: pointer;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: ['class', '[data-theme="dark"]'],
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Google Sans"', '"Open Sans"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace']
+            },
+            colors: {
+              surface: 'var(--surface-color)',
+              'surface-card': 'var(--surface-card)',
+              'on-surface': 'var(--on-surface)',
+              'on-surface-variant': 'var(--on-surface-variant)',
+              'outline-variant': 'var(--outline-variant)',
+              'g-blue': 'var(--google-blue)',
+              'g-cyan': 'var(--cyan)',
+              'g-purple': 'var(--purple)',
+              'g-tangerine': 'var(--tangerine)',
+              'g-mint': 'var(--mint-green)'
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="font-sans bg-surface text-on-surface m-0 p-3 sm:p-5 flex justify-center w-full min-h-screen">
+    <main class="w-full max-w-[860px] flex flex-col gap-4">
+      <!-- Header Banner -->
+      <header class="w-full bg-slate-900 text-white rounded-lg p-3.5 border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono font-bold tracking-wider text-purple-300">Q-MCT v4.2 ANALYTICAL MODULE 02</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-700 font-mono">LAYER 4 ALGORITHMS</span>
+          </div>
+          <h1 class="text-lg sm:text-xl font-semibold text-white mt-0.5">
+            Quantum Algorithmic Advantage: QUAV Path Planning, Mean-Field AOA &amp; QRL Compression
+          </h1>
+        </div>
+        <div class="flex items-center gap-2 font-mono text-[11px] shrink-0">
+          <a href="metrology_benchmarks.html" class="px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-300 transition">
+            ← Metrology Module
+          </a>
+          <a href="q_mct_flight_deck.html" class="px-2.5 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-semibold transition">
+            Flight Deck →
+          </a>
+        </div>
+      </header>
+
+      <!-- Top Operational Efficiency KPI Strip -->
+      <section class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono">
+        <div class="bg-surface-card border border-outline-variant rounded-lg p-2.5">
+          <div class="text-[10px] text-on-surface-variant">PQC-QRL vs DQN</div>
+          <div class="text-base font-bold text-emerald-500 mt-0.5">4.29× Fewer Params</div>
+          <div class="text-[10px] text-on-surface-variant">3.77× vs Actor-Critic</div>
+        </div>
+        <div class="bg-surface-card border border-outline-variant rounded-lg p-2.5">
+          <div class="text-[10px] text-on-surface-variant">QUAV-QAOA vs RRT</div>
+          <div class="text-base font-bold text-purple-500 mt-0.5">-29.3% Path Length</div>
+          <div class="text-[10px] text-on-surface-variant">1104.11 m vs 1561.99 m</div>
+        </div>
+        <div class="bg-surface-card border border-outline-variant rounded-lg p-2.5">
+          <div class="text-[10px] text-on-surface-variant">CubeSat QKD (100 MHz)</div>
+          <div class="text-base font-bold text-cyan-500 mt-0.5">1.99 Mbits / Pass</div>
+          <div class="text-[10px] text-on-surface-variant">2,010 s daily contact</div>
+        </div>
+        <div class="bg-surface-card border border-outline-variant rounded-lg p-2.5">
+          <div class="text-[10px] text-on-surface-variant">DP Reactive Scheduler</div>
+          <div class="text-base font-bold text-g-blue mt-0.5">8,341 DTN Bundles</div>
+          <div class="text-[10px] text-on-surface-variant">&lt;1 min runtime (55° FOR)</div>
+        </div>
+      </section>
+
+      <!-- Interactive Solver Controls -->
+      <section class="bg-surface-card border border-outline-variant rounded-lg p-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between font-medium">
+            <span>Obstacle Polygon Safety Buffer (s_x, s_y):</span>
+            <span id="buffer-val" class="font-mono text-purple-600 dark:text-purple-400 font-bold tabular-nums">1.50×</span>
+          </div>
+          <input type="range" id="buffer-slider" min="1.0" max="2.5" step="0.05" value="1.5" class="w-full">
+          <div class="flex justify-between text-[10px] font-mono text-on-surface-variant">
+            <span>1.0× Nominal Hull</span>
+            <span>1.5× QUAV Standard</span>
+            <span>2.5× High-Hazard Margin</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between font-medium">
+            <span>Mean-Field AOA Circuit Depth (p layers):</span>
+            <span id="depth-val" class="font-mono text-cyan-600 dark:text-cyan-400 font-bold tabular-nums">p = 400</span>
+          </div>
+          <input type="range" id="depth-slider" min="12" max="1000" step="12" value="400" class="w-full">
+          <div class="flex justify-between text-[10px] font-mono text-on-surface-variant">
+            <span>p=12 (NISQ QAOA)</span>
+            <span>p=400 (Mean-Field)</span>
+            <span>p=1000 (Parisi Asymptote)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Two-Column Visualization Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <!-- Chart A: QUAV Scenario 3 Trajectory Benchmark -->
+        <section class="bg-surface-card border border-outline-variant rounded-lg p-3.5 flex flex-col gap-2">
+          <div>
+            <h2 class="text-sm font-bold text-on-surface">1. Scenario 3 Obstacle-Avoidance Trajectory Length</h2>
+            <p class="text-[11px] text-on-surface-variant">
+              DARBO-optimized QUAV-QAOA (κ_s=4, β=0.2) vs. Rapidly-exploring Random Trees (RRT) &amp; A* lattice search.
+            </p>
+          </div>
+          <div class="w-full h-[225px] bg-slate-950 rounded border border-slate-800 overflow-hidden">
+            <canvas id="quav-chart" class="w-full h-full block"></canvas>
+          </div>
+          <div class="flex justify-between font-mono text-[10px] text-on-surface-variant pt-1">
+            <span>A* Lattice: <strong class="text-emerald-500">380.00 m</strong></span>
+            <span>QUAV-QAOA: <strong id="quav-len-label" class="text-purple-400">1104.11 m</strong></span>
+            <span>RRT: <strong id="rrt-len-label" class="text-amber-500">1561.99 m</strong></span>
+          </div>
+        </section>
+
+        <!-- Chart B: Sherrington-Kirkpatrick Spin-Glass Scaling -->
+        <section class="bg-surface-card border border-outline-variant rounded-lg p-3.5 flex flex-col gap-2">
+          <div>
+            <h2 class="text-sm font-bold text-on-surface">2. SK Spin-Glass Ground-State Energy E*/N (10k Instances)</h2>
+            <p class="text-[11px] text-on-surface-variant">
+              Polynomial O(pN²) Mean-Field AOA (ω = 0.61) surpassing QAOA (p=12) &amp; Zero-Temp Annealing toward Parisi bound.
+            </p>
+          </div>
+          <div class="w-full h-[225px] bg-slate-950 rounded border border-slate-800 overflow-hidden">
+            <canvas id="sk-chart" class="w-full h-full block"></canvas>
+          </div>
+          <div class="flex justify-between font-mono text-[10px] text-on-surface-variant pt-1">
+            <span>QAOA(12): <strong class="text-amber-500">-0.637</strong></span>
+            <span>MF-AOA: <strong id="mf-energy-label" class="text-cyan-400">-0.752</strong></span>
+            <span>Parisi ε_P: <strong class="text-emerald-400">-0.763</strong></span>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const state = {
+        bufferScale: 1.5,
+        pDepth: 400
+      };
+
+      function setupCanvas(canvas) {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        return { ctx, w: rect.width, h: rect.height };
+      }
+
+      function drawQUAVChart() {
+        const { ctx, w, h } = setupCanvas(document.getElementById('quav-chart'));
+        ctx.fillStyle = '#060A17';
+        ctx.fillRect(0, 0, w, h);
+
+        const padL = 52, padR = 16, padT = 18, padB = 30;
+        const plotW = w - padL - padR;
+        const plotH = h - padT - padB;
+        const maxLen = 2000;
+
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.16)';
+        ctx.font = '9px "JetBrains Mono"';
+        ctx.fillStyle = '#94A3B8';
+
+        [0, 500, 1000, 1500, 2000].forEach(val => {
+          const y = padT + ((maxLen - val) / maxLen) * plotH;
+          ctx.beginPath();
+          ctx.moveTo(padL, y);
+          ctx.lineTo(w - padR, y);
+          ctx.stroke();
+          ctx.fillText(`${val}m`, 10, y + 3);
+        });
+
+        const deltaBuf = state.bufferScale - 1.5;
+        const aStarLen = 380.00 + Math.max(0, deltaBuf * 45.0);
+        const quavLen = 1104.11 + deltaBuf * 115.0;
+        const rrtLen = 1561.99 + deltaBuf * 240.0;
+
+        document.getElementById('quav-len-label').textContent = `${quavLen.toFixed(2)} m`;
+        document.getElementById('rrt-len-label').textContent = `${rrtLen.toFixed(2)} m`;
+
+        const bars = [
+          { label: 'A* Lattice', val: aStarLen, color: '#81C995', sub: 'Slow Grid' },
+          { label: 'QUAV-QAOA', val: quavLen, color: '#A142F4', sub: 'Smooth / Fast' },
+          { label: 'RRT Baseline', val: rrtLen, color: '#FA903E', sub: 'Jagged Path' }
+        ];
+
+        const slot = plotW / bars.length;
+        bars.forEach((b, i) => {
+          const bx = padL + i * slot + slot * 0.2;
+          const bw = slot * 0.6;
+          const topY = padT + ((maxLen - b.val) / maxLen) * plotH;
+          const barH = (padT + plotH) - topY;
+
+          ctx.fillStyle = b.color;
+          ctx.fillRect(bx, topY, bw, barH);
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 10px "JetBrains Mono"';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${b.val.toFixed(1)}m`, bx + bw / 2, topY - 6);
+          ctx.fillStyle = '#CBD5E1';
+          ctx.font = '9px "JetBrains Mono"';
+          ctx.fillText(b.label, bx + bw / 2, h - 10);
+        });
+        ctx.textAlign = 'left';
+      }
+
+      function evalMFEnergy(p) {
+        // Asymptotic scaling E*/N = -0.763 + C * p^(-0.61)
+        const val = -0.763 + 0.56 * Math.pow(p, -0.61);
+        return Math.max(-0.762, Math.min(-0.62, val));
+      }
+
+      function drawSKChart() {
+        const { ctx, w, h } = setupCanvas(document.getElementById('sk-chart'));
+        ctx.fillStyle = '#060A17';
+        ctx.fillRect(0, 0, w, h);
+
+        const padL = 52, padR = 16, padT = 18, padB = 30;
+        const plotW = w - padL - padR;
+        const plotH = h - padT - padB;
+        const minE = -0.78, maxE = -0.60;
+
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.16)';
+        ctx.font = '9px "JetBrains Mono"';
+        ctx.fillStyle = '#94A3B8';
+
+        [-0.60, -0.65, -0.70, -0.75].forEach(eVal => {
+          const y = padT + ((maxE - eVal) / (maxE - minE)) * plotH;
+          ctx.beginPath();
+          ctx.moveTo(padL, y);
+          ctx.lineTo(w - padR, y);
+          ctx.stroke();
+          ctx.fillText(eVal.toFixed(2), 10, y + 3);
+        });
+
+        // Reference Horizontal Lines: QAOA (p=12) = -0.637, Zero-T Annealing = -0.710, Parisi Bound = -0.763
+        const refs = [
+          { val: -0.637, color: '#FA903E', label: 'QAOA p=12 (-0.637)' },
+          { val: -0.710, color: '#94A3B8', label: 'Zero-T Anneal (-0.710)' },
+          { val: -0.763, color: '#81C995', label: 'Parisi Bound ε_P (-0.763)' }
+        ];
+
+        refs.forEach(r => {
+          const y = padT + ((maxE - r.val) / (maxE - minE)) * plotH;
+          ctx.save();
+          ctx.strokeStyle = r.color;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(padL, y);
+          ctx.lineTo(w - padR, y);
+          ctx.stroke();
+          ctx.fillStyle = r.color;
+          ctx.fillText(r.label, padL + 6, y - 4);
+          ctx.restore();
+        });
+
+        // Mean-Field AOA Convergence Curve across p in [12, 1000]
+        ctx.strokeStyle = '#12B5CB';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        for (let step = 0; step <= 100; step++) {
+          const p = 12 + (step / 100) * (1000 - 12);
+          const eVal = evalMFEnergy(p);
+          const px = padL + (step / 100) * plotW;
+          const py = padT + ((maxE - eVal) / (maxE - minE)) * plotH;
+          if (step === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Active Depth Marker
+        const frac = (state.pDepth - 12) / (1000 - 12);
+        const curX = padL + frac * plotW;
+        const curE = evalMFEnergy(state.pDepth);
+        const curY = padT + ((maxE - curE) / (maxE - minE)) * plotH;
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(curX, curY, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        document.getElementById('mf-energy-label').textContent = curE.toFixed(3);
+        [12, 250, 500, 750, 1000].forEach(pTick => {
+          const x = padL + ((pTick - 12) / (1000 - 12)) * plotW;
+          ctx.fillStyle = '#94A3B8';
+          ctx.fillText(`p=${pTick}`, x - 14, h - 10);
+        });
+      }
+
+      document.getElementById('buffer-slider').addEventListener('input', (e) => {
+        state.bufferScale = parseFloat(e.target.value);
+        document.getElementById('buffer-val').textContent = `${state.bufferScale.toFixed(2)}×`;
+        drawQUAVChart();
+      });
+
+      document.getElementById('depth-slider').addEventListener('input', (e) => {
+        state.pDepth = parseInt(e.target.value);
+        document.getElementById('depth-val').textContent = `p = ${state.pDepth}`;
+        drawSKChart();
+      });
+
+      function renderAll() {
+        drawQUAVChart();
+        drawSKChart();
+      }
+
+      window.addEventListener('resize', renderAll);
+      document.fonts.ready.then(renderAll);
+    </script>
+  </body>
+</html>
